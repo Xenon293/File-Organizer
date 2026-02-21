@@ -46,6 +46,3 @@ After:
 - `Downloads/Images/photo.jpg`
 - `Downloads/Documents/report.pdf`
 - `Downloads/Music/song.mp3`
-
-## License
-Add your preferred license before publishing.
