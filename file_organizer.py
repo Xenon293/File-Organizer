@@ -33,7 +33,7 @@ def unique_destination_path(dest_dir: str, filename: str) -> str:
     return candidate
 
 
-def organize_folder(folder_path: str, overwrite: bool = False) -> None:
+def organize_folder(folder_path: str, overwrite: bool = False, dry_run: bool = False) -> None:
     """Move files in folder_path into category subfolders."""
     if not os.path.isdir(folder_path):
         print(f"Error: '{folder_path}' is not a valid folder path.")
@@ -57,6 +57,11 @@ def organize_folder(folder_path: str, overwrite: bool = False) -> None:
         if os.path.exists(dest_path) and not overwrite:
             dest_path = unique_destination_path(dest_dir, item)
 
+        if dry_run:
+            print(f"Would move: '{item_path}' -> '{dest_path}'")
+            moved_count += 1
+            continue
+
         try:
             shutil.move(item_path, dest_path)
             moved_count += 1
@@ -68,10 +73,16 @@ def organize_folder(folder_path: str, overwrite: bool = False) -> None:
             print(f"Failed to move '{item_path}': {error}")
             continue
 
-    print(
-        "Organizing complete. "
-        f"Moved: {moved_count}, Failed: {failed_count}"
-    )
+    if dry_run:
+        print(
+            "Dry run complete. "
+            f"Planned moves: {moved_count}, Failed: {failed_count}"
+        )
+    else:
+        print(
+            "Organizing complete. "
+            f"Moved: {moved_count}, Failed: {failed_count}"
+        )
 
 
 def parse_args() -> argparse.Namespace:
@@ -89,9 +100,14 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Overwrite files with the same name in destination folders.",
     )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Preview file moves without making any changes.",
+    )
     return parser.parse_args()
 
 
 if __name__ == "__main__":
     args = parse_args()
-    organize_folder(args.folder, overwrite=args.overwrite)
+    organize_folder(args.folder, overwrite=args.overwrite, dry_run=args.dry_run)
